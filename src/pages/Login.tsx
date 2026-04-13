@@ -86,7 +86,7 @@ const Login = () => {
               Esqueceu sua senha?
             </a>
             <p className="text-xs text-muted-foreground">
-              Não possui conta? <a href="#" className="text-primary hover:underline">Cadastre-se</a>
+              Não possui conta? <Link to="/register" className="text-primary hover:underline">Cadastre-se</Link>
             </p>
           </div>
         </CardContent>
