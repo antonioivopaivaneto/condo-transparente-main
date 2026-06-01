@@ -11,29 +11,40 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import EscolherUnidade from "./pages/EscolhaCondominio";
 import Register from "./pages/Register";
+import TwoFactorVerify from "./pages/TwoFactorVerify";
+import TwoFactorSetup from "./pages/TwoFactorSetup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import { AuthProvider } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/sindico" element={<Sindico />} />
-          <Route path="/morador" element={<Morador />} />
-          <Route path="/fornecedor" element={<Fornecedor />} />
-          <Route path="/escolherUnidade" element={<EscolherUnidade />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/sindico" element={<Sindico />} />
+            <Route path="/morador" element={<Morador />} />
+            <Route path="/fornecedor" element={<Fornecedor />} />
+            <Route path="/escolherUnidade" element={<EscolherUnidade />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/2fa-verify" element={<TwoFactorVerify />} />
+            <Route path="/2fa-setup" element={<TwoFactorSetup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
