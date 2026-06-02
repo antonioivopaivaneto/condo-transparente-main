@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import api from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import Navbar from '@/components/Navbar';
 
 const TwoFactorSetup = () => {
   const [qrCode, setQrCode] = useState('');
@@ -45,7 +46,7 @@ const TwoFactorSetup = () => {
       setLoading(true);
       await api.post('/auth/2fa/verify-setup', { secret, token });
       toast('2FA ativado com sucesso');
-      navigate('/morador');
+      navigate('/my-data');
     } catch (error) {
       toast(error.response?.data?.error || 'Erro ao ativar 2FA');
     } finally {
@@ -54,7 +55,9 @@ const TwoFactorSetup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8">
       <Card className="w-full max-w-2xl border-border shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Configurar Autenticação de Dois Fatores</CardTitle>
@@ -77,7 +80,7 @@ const TwoFactorSetup = () => {
 
               <form className="space-y-4" onSubmit={handleVerifySetup}>
                 <div>
-                  <label className="block text-sm font-medium text-foreground">Código TOTP</label>
+                  <label className="block text-sm font-medium text-foreground">Código do App(google/microsoft)</label>
                   <input
                     type="text"
                     value={token}
@@ -97,6 +100,7 @@ const TwoFactorSetup = () => {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };

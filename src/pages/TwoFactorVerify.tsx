@@ -40,9 +40,11 @@ const TwoFactorVerify = () => {
         }
       );
 
-      login(response.data.token, role);
-      toast('2FA validado com sucesso!');
-      navigate(role === 'sindico' ? '/sindico' : '/morador');
+      const userRole = response.data.role || role;
+      login(response.data.token, userRole);
+      toast('2FA validado. Continuando...');
+      const redirectPath = userRole === 'sindico' ? '/sindico' : '/escolherUnidade';
+      navigate(`/lgpd-consent?redirect=${encodeURIComponent(redirectPath)}`);
     } catch (error) {
       toast(error.response?.data?.error || 'Erro ao validar 2FA');
     } finally {
@@ -62,7 +64,7 @@ const TwoFactorVerify = () => {
         <CardContent>
           <form className="space-y-6" onSubmit={handleVerify}>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-foreground">Código TOTP</label>
+              <label className="block text-sm font-medium text-foreground">Código do App(google/microsoft)</label>
               <Input
                 type="text"
                 value={code}

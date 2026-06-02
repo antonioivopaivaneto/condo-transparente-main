@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import { TrendingUp, TrendingDown, DollarSign, FileText, Users, Plus } from "lucide-react";
+import RoleBenefits from "@/components/RoleBenefits";
+import { useAuth } from "@/context/AuthContext";
 
 const Sindico = () => {
+  const { token, role } = useAuth();
   const expenses = [
     { name: "Limpeza", value: "R$ 2.500,00", status: "pago" },
     { name: "Manutenção Elevador", value: "R$ 1.800,00", status: "pendente" },
@@ -22,6 +25,10 @@ const Sindico = () => {
     { account: "Segurança", allocated: 4500, spent: 4200 },
     { account: "Água e Luz", allocated: 2000, spent: 1500 },
   ];
+  if (!token || role !== "sindico") {
+    return <RoleBenefits role="sindico" />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />

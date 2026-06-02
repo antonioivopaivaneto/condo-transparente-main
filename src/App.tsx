@@ -15,6 +15,9 @@ import TwoFactorVerify from "./pages/TwoFactorVerify";
 import TwoFactorSetup from "./pages/TwoFactorSetup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import MyData from "./pages/MyData";
+import DownloadData from "./pages/DownloadData";
+import LgpdConsent from "./pages/LgpdConsent";
 import { AuthProvider } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
@@ -38,6 +41,9 @@ const App = () => (
             <Route path="/2fa-setup" element={<TwoFactorSetup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/my-data" element={<MyData />} />
+            <Route path="/download-data" element={<DownloadData />} />
+            <Route path="/lgpd-consent" element={<LgpdConsent />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

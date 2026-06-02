@@ -6,9 +6,13 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Building2, Home } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import { useAuth } from "@/context/AuthContext";
+import RoleBenefits from "@/components/RoleBenefits";
 
 const EscolherUnidade = () => {
   const navigate = useNavigate();
+  const { token, role } = useAuth();
 
   const [selectedCondo, setSelectedCondo] = useState<string | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
@@ -40,8 +44,14 @@ const EscolherUnidade = () => {
     setSelectedUnit(unit);
   };
 
+  if (!token || role !== "morador") {
+    return <RoleBenefits role="morador" />;
+  }
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8">
       <Card className="w-full max-w-2xl border-border shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-foreground">
@@ -106,7 +116,7 @@ const EscolherUnidade = () => {
               className="w-full"
               onClick={() =>
                  navigate(
-                  `/morador?condominio=${selectedCondo}&unidade=${selectedUnit}`
+                  `/morador?condominio=${encodeURIComponent(selectedCondo || "")}&unidade=${encodeURIComponent(selectedUnit || "")}`
                 )
               }
             >
@@ -115,6 +125,7 @@ const EscolherUnidade = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };

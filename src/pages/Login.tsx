@@ -1,166 +1,183 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Building2, Lock, Mail, ShieldCheck, UserCircle2, Users } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Lock, Mail, UserCircle2, Users } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { toast } from "sonner";
 import api from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'sindico' | 'morador'>('morador');
+  const [selectedRole, setSelectedRole] = useState<"sindico" | "morador">("morador");
   const navigate = useNavigate();
   const { login, setTempToken, setRole } = useAuth();
 
-  async function handleLogin(e) {
-    e.preventDefault();
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
     if (!email || !password) {
-      toast('Preencha e-mail e senha');
+      toast("Preencha e-mail e senha");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await api.post('/auth/login', {
+      const response = await api.post("/auth/login", {
         email,
         password,
       });
 
+      const userRole = response.data.role || selectedRole;
+
       if (response.data.requiresTwoFactor) {
         setTempToken(response.data.tempToken);
-        setRole(selectedRole);
-        toast('Autenticação parcialmente concluída. Insira o código 2FA.');
-        navigate('/2fa-verify');
+        setRole(userRole);
+        toast("Código 2FA necessário para concluir o acesso.");
+        navigate("/2fa-verify");
         return;
       }
 
-      login(response.data.token, selectedRole);
-      toast('Login realizado com sucesso 🚀');
-      navigate(selectedRole === 'sindico' ? '/sindico' : '/morador');
-    } catch (error) {
-      toast(error.response?.data?.error || 'Erro no login');
+      login(response.data.token, userRole);
+      toast("Login validado. Continuando...");
+      const redirectPath = userRole === "sindico" ? "/sindico" : "/escolherUnidade";
+      navigate(`/lgpd-consent?redirect=${encodeURIComponent(redirectPath)}`);
+    } catch (error: any) {
+      toast(error.response?.data?.error || "Erro no login");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <Card className="w-full max-w-md border-border shadow-lg">
-        <CardHeader className="text-center">
-           <div className=" rounded-lg p-2 flex items-center justify-center ">
-              <img  className="w-24 " src="../../public/logo.png"/>
+    <div className="min-h-screen bg-background">
+      <div className="grid min-h-screen lg:grid-cols-[1fr_520px]">
+        <section className="hidden bg-secondary/40 px-10 py-12 lg:flex lg:flex-col lg:justify-between">
+          <Link to="/" className="inline-flex items-center">
+            <img className="w-28" src="/logo.png" alt="Logo" />
+          </Link>
+
+          <div className="max-w-xl space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-sm text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              Acesso seguro ao portal
             </div>
-          <CardTitle className="text-2xl font-bold text-foreground">
-            Portal do {selectedRole === 'sindico' ? 'Síndico' : 'Morador'}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground mt-2">
-            Faça login para acessar sua visão de {selectedRole === 'sindico' ? 'síndico' : 'morador'}
-          </p>
-        </CardHeader>
-
-        <CardContent>
-          <form className="space-y-4"  onSubmit={handleLogin}>
-            {/* Email */}
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="email"
-                value={email}
-                placeholder="Seu e-mail"
-                className="pl-10"
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-              />
+            <div className="space-y-4">
+              <h1 className="text-5xl font-bold leading-tight text-foreground">
+                Gestão transparente para quem vive o condomínio.
+              </h1>
+              <p className="text-lg leading-8 text-muted-foreground">
+                Entre para acompanhar gastos, unidades, consentimentos LGPD e segurança da sua conta.
+              </p>
             </div>
+          </div>
 
-            {/* Senha */}
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="password"
-                value={password}
-                placeholder="Sua senha"
-                className="pl-10"
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-              />
+          <div className="grid grid-cols-3 gap-3 text-sm text-muted-foreground">
+            <div className="rounded-lg border border-border bg-card p-4">
+              <Building2 className="mb-3 h-5 w-5 text-primary" />
+              Condomínios
             </div>
+            <div className="rounded-lg border border-border bg-card p-4">
+              <Users className="mb-3 h-5 w-5 text-primary" />
+              Moradores
+            </div>
+            <div className="rounded-lg border border-border bg-card p-4">
+              <ShieldCheck className="mb-3 h-5 w-5 text-primary" />
+              LGPD e 2FA
+            </div>
+          </div>
+        </section>
 
-            {/* Botão */}
-            <Button type="submit" className="w-full mt-2" disabled={loading}>
-              {loading ? 'Entrando...' : 'Entrar'}
-            </Button>
-           
-          </form>
+        <section className="flex items-center justify-center px-4 py-8">
+          <Card className="w-full max-w-md border-border shadow-lg">
+            <CardContent className="p-6 sm:p-8">
+              <div className="mb-8 text-center">
+                <Link to="/" className="mb-4 inline-flex justify-center lg:hidden">
+                  <img className="w-24" src="/logo.png" alt="Logo" />
+                </Link>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Entrar no portal
+                </h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Se sua conta tiver 2FA ativo, pediremos o código automaticamente.
+                </p>
+              </div>
 
-          <div className="mt-6 rounded-2xl border border-border bg-secondary/50 p-4">
-            <p className="text-sm font-semibold text-foreground mb-3">Entrar como</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition ${
-                  selectedRole === 'morador'
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-background text-foreground'
-                }`}
-                onClick={() => setSelectedRole('morador')}
-              >
-                <div className="flex items-center justify-center gap-2">
+              <div className="mb-5 grid grid-cols-2 gap-2 rounded-lg border border-border bg-secondary/40 p-1">
+                <button
+                  type="button"
+                  className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${
+                    selectedRole === "morador"
+                      ? "bg-card text-primary shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setSelectedRole("morador")}
+                >
                   <Users className="h-4 w-4" />
                   Morador
-                </div>
-              </button>
-              <button
-                type="button"
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition ${
-                  selectedRole === 'sindico'
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-background text-foreground'
-                }`}
-                onClick={() => setSelectedRole('sindico')}
-              >
-                <div className="flex items-center justify-center gap-2">
+                </button>
+                <button
+                  type="button"
+                  className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${
+                    selectedRole === "sindico"
+                      ? "bg-card text-primary shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setSelectedRole("sindico")}
+                >
                   <UserCircle2 className="h-4 w-4" />
                   Síndico
-                </div>
-              </button>
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Selecione o perfil que você deseja acessar.
-            </p>
-          </div>
+                </button>
+              </div>
 
-          <div className="mt-6 text-center space-y-2">
-            <Link
-              to="/forgot-password"
-              className="text-sm text-primary hover:underline"
-            >
-              Esqueceu sua senha?
-            </Link>
-            <Link
-              to="/2fa-verify"
-              className="block text-sm text-primary hover:underline"
-            >
-              Já tenho autenticação 2FA
-            </Link>
-            <Link
-              to="/2fa-setup"
-              className="block text-sm text-primary hover:underline"
-            >
-              Quero ativar a autenticação de dois fatores
-            </Link>
-            <p className="text-xs text-muted-foreground">
-              Não possui conta? <Link to="/register" className="text-primary hover:underline">Cadastre-se</Link>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+              <form className="space-y-4" onSubmit={handleLogin}>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    value={email}
+                    placeholder="Seu e-mail"
+                    className="pl-10"
+                    onChange={(event) => setEmail(event.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="password"
+                    value={password}
+                    placeholder="Sua senha"
+                    className="pl-10"
+                    onChange={(event) => setPassword(event.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Entrando..." : "Entrar"}
+                </Button>
+              </form>
+
+              <div className="mt-6 space-y-3 text-center text-sm">
+                <Link to="/forgot-password" className="block text-primary hover:underline">
+                  Esqueceu sua senha?
+                </Link>
+                <p className="text-xs text-muted-foreground">
+                  Não possui conta?{" "}
+                  <Link to="/register" className="text-primary hover:underline">
+                    Cadastre-se
+                  </Link>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      </div>
     </div>
   );
 };

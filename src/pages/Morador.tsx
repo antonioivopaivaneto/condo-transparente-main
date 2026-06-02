@@ -1,13 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import { DollarSign, TrendingUp, FileText, Calendar, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import RoleBenefits from "@/components/RoleBenefits";
+import { useAuth } from "@/context/AuthContext";
 
 const Morador = () => {
+  const { token, role } = useAuth();
+  const [searchParams] = useSearchParams();
   const [chatOpen, setChatOpen] = useState(false);
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([
     { sender: "bot", text: "Olá! Sou o assistente do condomínio 🏢. Pergunte sobre gastos ou normas." },
@@ -28,6 +33,14 @@ const Morador = () => {
     { date: "10 Jan 2025", description: "Taxa de Condomínio", value: "R$ 450,00", type: "entrada" },
     { date: "08 Jan 2025", description: "Segurança Mensal", value: "R$ 4.200,00", type: "saída" },
   ];
+
+  if (!token || role !== "morador") {
+    return <RoleBenefits role="morador" />;
+  }
+
+  if (!searchParams.get("condominio") || !searchParams.get("unidade")) {
+    return <Navigate to="/escolherUnidade" replace />;
+  }
 
 
   // Simula resposta com animação de digitação
